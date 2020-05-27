@@ -1,15 +1,17 @@
 #include <iostream>
-#inclue <fstream>
+#include <fstream>
 using namespace std;
 
 int main()
 { string filename="processes.bin";
   ifstream in;
-  int k;
+  char k;
   in.open(filename);
+ cout<<in;
   while(in.good())
   { in>>k;
-    cout<<k<<endl;
+    int n=(int)(k);
+   //cout<<n<<endl;
   }
   return 0;
 }
