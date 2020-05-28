@@ -1,15 +1,13 @@
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 #include <vector>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 using namespace std;
 
-//char Active;
-//read(&Active,sizeof(chat),1,f);
-//FILE * f;
-//printf(“Activity value:%c”,Activity);
-//printf(“Activity value:%d”,Activity);
-//int New_Activity = Activity;
+
 struct PCB{
     string process_name;
     int process_id;
@@ -22,28 +20,54 @@ struct PCB{
 int main()
 {
     string infileName="processes.bin";
-    string outfileName="output.bin";
+    string outfileName="copyOf"+infileName;
+    ifstream input( infileName, ios::binary );
     ofstream output( outfileName, ios::binary );
    
-    {   
+ /*   {   
         cout<<"enter the name of the PCB binary file"<<endl;
         cin>>infileName;
         ifstream input( infileName, ios::binary );
        
-    } while(input.is_open())
+    } while(input.is_open())*/
     
-    int bitN =input.tellg();
-    int size=bitN/38;
-    PCB process[size];
+  
+
 //https://stackoverflow.com/questions/5420317/reading-and-writing-binary-file
     copy( 
         istreambuf_iterator<char>(input), 
         istreambuf_iterator<char>( ),
         ostreambuf_iterator<char>(output));
-    cout<<input.tellg()<<endl;
- //  int x[7];
-  //  ifstream infile;
-   // infile.open("processes.bin", ios::binary | ios::in);
-   // cout<<infile<<endl;
-  //  infile.read(&x,7); // reads 7 bytes into a cell that is either 2 or 4
+    //cout<<input.tellg()<<endl;
+    int bitN =input.tellg();
+    int size=bitN/38;
+
+    struct PCB process[size];
+    input.close();
+    output.close();
+//end of copying 
+    FILE *fptr;
+   // cout<<size;/////////////
+    const char *modifyingFile=outfileName.c_str();
+    if((fptr=fopen(modifyingFile,"rb"))==NULL)
+    {printf("Error! opening file");
+     exit(1);
+    }
+    cout<<sizeof(char);
+    
+    for(int i=0;i<size;i++)
+    { fread(&process[i].process_name,sizeof(char)*16,1,fptr);
+      fread(&process[i].process_id,32/8,1,fptr);
+      fread(&process[i].activity_status,sizeof(char),1,fptr);
+     fread(&process[i].CPU_burst_time,32/8,1,fptr);
+     fread(&process[i].base_register,32/8,1,fptr);
+     fread(&process[i].limit_register,64/8,1,fptr);
+     fread(&process[i].priority,sizeof(char),1,fptr);
+    }
+    fclose(fptr);
+    for (int i=0;i<size;i++){
+        cout<<process[i].process_name<<"\t";
+        cout<<process[i].activity_status<<endl;
+    }
+    return 0;
 }
