@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 using namespace std;
-// todoist: commandline filename, wait
+//author: Junyu Lu 41176974
+// waiting time is 1s, copied and modifed file is "copyOf"+input_file_name.
 
 struct PCB{
     char process_name[16];
@@ -75,17 +76,18 @@ void execute(PCB * process, string outfileName, int size)
             {
                 if (process[i].CPU_burst_time>0)
                 {   cout<< "Round Robin on process "<<process[i].process_id<<", remaining CPU burst: "<<process[i].CPU_burst_time<<", time="<<t+loop*60<<endl;
+                    sleep(1);   
                     process[i].CPU_burst_time--;
                     if (process[i].CPU_burst_time==0) // one process is finished.
                     {   process[i].activity_status=char(0);
                         write(process, outfileName,size);
                         read(process,outfileName,size);
                     }
-                    //sleep(1);
+                    
                     i++;
                 }else
                 {
-                    process[i].activity_status=char(0);//just to secure
+                    process[i].activity_status=char(0);//make sure 0 burst time processes get a 0 activity
                     if(i<size-1)
                         i++;
                     else
@@ -108,14 +110,15 @@ void execute(PCB * process, string outfileName, int size)
                     }
                 }//found 
                 cout<<"priority scheduling on process "<< process[m].process_id<<", remaining CPU burst: "<<process[m].CPU_burst_time<<",prioirty: "<<(int)process[m].priority<<", time="<<t+loop*60<<endl;
+                sleep(1);
                 process[m].CPU_burst_time--;
                 if (process[m].CPU_burst_time<=0) // one process is finished.
                     {   process[m].activity_status=char(0);
                         write(process, outfileName,size);
                         read(process,outfileName,size);
                     }
-                if(t%2==0)
-                    process[m].priority=(char)((int)(process[m].priority)-1);
+                if(t%2==0&&(int)(process[m].priority)<127)
+                    process[m].priority=(char)((int)(process[m].priority)+1);
             }
         }
         loop++;
@@ -126,7 +129,7 @@ void execute(PCB * process, string outfileName, int size)
 
 int main(int argc, char* argv[])
 {
-    //
+ 
     if (argc==1)
   {
     cout<<"input file name in command line"<<endl;
@@ -141,8 +144,14 @@ int main(int argc, char* argv[])
       infileName+=" ";
       infileName+=argv[i];
     }
-    //
-   // string infileName="copyOfprocesses.bin";
+    //check if file exist
+    ifstream f(infileName);
+    if (!f.good()){
+        cout<<"incorrect file name!"<<endl;
+        exit(1);
+    }
+  
+  
     string outfileName="copyOf"+infileName;
     ifstream input( infileName, ios::binary );
     ofstream output( outfileName, ios::binary );
@@ -162,16 +171,7 @@ int main(int argc, char* argv[])
 //end of copying 
  
     read(process, outfileName,size);
-    // process structs are read
-    /* for (int i=0;i<size;i++){
-        cout<<process[i].process_name<<"\t";
-        cout<<process[i].process_id<<"\t";
-        cout<<process[i].CPU_burst_time<<"\t";
-        cout<<process[i].base_register<<"\t";
-        cout<<process[i].limit_register<<"\t";
-        cout<<(int)(process[i].priority)<<"\t";
-        cout<<(int)(process[i].activity_status)<<endl;
-    }*/
+
     write(process,outfileName,size);
     int counter=0;
     int memsumBase=0;
