@@ -9,7 +9,7 @@ using namespace std;
 
 
 struct PCB{
-    string process_name;
+    char process_name[16];
     int process_id;
     char activity_status;
     int CPU_burst_time;
@@ -17,6 +17,10 @@ struct PCB{
     int limit_register;
     char priority;
 };
+void write(PCB p,const chat* outFilename){
+    
+}
+
 int main()
 {
     string infileName="processes.bin";
@@ -59,15 +63,22 @@ int main()
     { fread(&process[i].process_name,sizeof(char)*16,1,fptr);
       fread(&process[i].process_id,32/8,1,fptr);
       fread(&process[i].activity_status,sizeof(char),1,fptr);
-     fread(&process[i].CPU_burst_time,32/8,1,fptr);
-     fread(&process[i].base_register,32/8,1,fptr);
-     fread(&process[i].limit_register,64/8,1,fptr);
-     fread(&process[i].priority,sizeof(char),1,fptr);
+      fread(&process[i].CPU_burst_time,32/8,1,fptr);
+      fread(&process[i].base_register,32/8,1,fptr);
+      fread(&process[i].limit_register,64/8,1,fptr);
+      fread(&process[i].priority,sizeof(char),1,fptr);
     }
+    fread(&process[0].process_name,sizeof(char)*16,1,fptr);
     fclose(fptr);
+    // process structs read
     for (int i=0;i<size;i++){
         cout<<process[i].process_name<<"\t";
-        cout<<process[i].activity_status<<endl;
+        cout<<process[i].process_id<<"\t";
+        cout<<process[i].CPU_burst_time<<"\t";
+        cout<<process[i].base_register<<"\t";
+        cout<<process[i].limit_register<<"\t";
+        cout<<(int)(process[i].priority)<<"\t";
+        cout<<(int)(process[i].activity_status)<<endl;
     }
     return 0;
 }
